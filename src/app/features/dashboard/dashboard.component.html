@@ -1,0 +1,124 @@
+<div class="page-container">
+  @if (loading) {
+    <div class="loading-state">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else if (data) {
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Your financial overview</p>
+      </div>
+      <a mat-flat-button color="primary" routerLink="/transactions">
+        <mat-icon>add</mat-icon> Add Transaction
+      </a>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="grid-4">
+      <div class="stat-card balance-card">
+        <div class="stat-row">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #4f46e5, #7c3aed)">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <span class="stat-label">Net Balance</span>
+        </div>
+        <div class="stat-value" [class.negative]="data.balance < 0">
+          {{ formatCurrency(data.balance) }}
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-row">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a)">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <span class="stat-label">Total Income</span>
+        </div>
+        <div class="stat-value income">{{ formatCurrency(data.totalIncome) }}</div>
+        <span class="stat-sub">This month: {{ formatCurrency(data.monthlyIncome) }}</span>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-row">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626)">
+            <mat-icon>trending_down</mat-icon>
+          </div>
+          <span class="stat-label">Total Expenses</span>
+        </div>
+        <div class="stat-value expense">{{ formatCurrency(data.totalExpense) }}</div>
+        <span class="stat-sub">This month: {{ formatCurrency(data.monthlyExpense) }}</span>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-row">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706)">
+            <mat-icon>savings</mat-icon>
+          </div>
+          <span class="stat-label">Savings Rate</span>
+        </div>
+        <div class="stat-value">
+          {{ data.totalIncome > 0 ? ((data.totalIncome - data.totalExpense) / data.totalIncome * 100 | number:'1.0-1') : 0 }}%
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid-2 mt-24">
+      <div class="card">
+        <div class="card-title">Monthly Overview (Last 6 Months)</div>
+        <div class="chart-container">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Expenses by Category (This Month)</div>
+        @if (data.categorySpends.length > 0) {
+          <div class="chart-container">
+            <canvas id="doughnutChart"></canvas>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>pie_chart</mat-icon>
+            <p>No expense data this month</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card mt-24">
+      <div class="flex justify-between items-center" style="margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">Recent Transactions</div>
+        <a mat-button color="primary" routerLink="/transactions">View all</a>
+      </div>
+
+      @if (data.recentTransactions.length > 0) {
+        <div class="transactions-list">
+          @for (t of data.recentTransactions; track t.id) {
+            <div class="transaction-row">
+              <div class="tx-icon" [style.background]="t.categoryColor + '20'">
+                <mat-icon [style.color]="t.categoryColor">{{ t.categoryIcon }}</mat-icon>
+              </div>
+              <div class="tx-info">
+                <span class="tx-desc">{{ t.description || t.categoryName }}</span>
+                <span class="tx-meta">{{ t.categoryName }} · {{ t.date | date:'MMM d, y' }}</span>
+              </div>
+              <span class="tx-amount" [class.amount-income]="t.type === 'INCOME'" [class.amount-expense]="t.type === 'EXPENSE'">
+                {{ t.type === 'INCOME' ? '+' : '-' }}{{ formatCurrency(t.amount) }}
+              </span>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <mat-icon>receipt_long</mat-icon>
+          <p>No transactions yet</p>
+          <a mat-stroked-button color="primary" routerLink="/transactions">Add your first transaction</a>
+        </div>
+      }
+    </div>
+  }
+</div>

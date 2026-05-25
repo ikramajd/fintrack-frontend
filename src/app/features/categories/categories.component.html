@@ -1,0 +1,74 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>Categories</h1>
+      <p>Organize your transactions</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openDialog()">
+      <mat-icon>add</mat-icon> New Category
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state"><mat-spinner diameter="40" /></div>
+  } @else {
+    <div class="grid-2">
+      <!-- Income -->
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title income">
+            <mat-icon>trending_up</mat-icon>
+            <span>Income ({{ incomeCategories.length }})</span>
+          </div>
+        </div>
+        @if (incomeCategories.length === 0) {
+          <div class="empty-state"><mat-icon>category</mat-icon><p>No income categories</p></div>
+        } @else {
+          <div class="cat-list">
+            @for (cat of incomeCategories; track cat.id) {
+              <div class="cat-row">
+                <div class="cat-icon" [style.background]="cat.color + '20'">
+                  <mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
+                </div>
+                <div class="cat-dot" [style.background]="cat.color"></div>
+                <span class="cat-name">{{ cat.name }}</span>
+                <div class="cat-actions">
+                  <button mat-icon-button (click)="openDialog(cat)"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="delete(cat)"><mat-icon>delete</mat-icon></button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Expense -->
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title expense">
+            <mat-icon>trending_down</mat-icon>
+            <span>Expenses ({{ expenseCategories.length }})</span>
+          </div>
+        </div>
+        @if (expenseCategories.length === 0) {
+          <div class="empty-state"><mat-icon>category</mat-icon><p>No expense categories</p></div>
+        } @else {
+          <div class="cat-list">
+            @for (cat of expenseCategories; track cat.id) {
+              <div class="cat-row">
+                <div class="cat-icon" [style.background]="cat.color + '20'">
+                  <mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
+                </div>
+                <span class="cat-name">{{ cat.name }}</span>
+                <div class="cat-actions">
+                  <button mat-icon-button (click)="openDialog(cat)"><mat-icon>edit</mat-icon></button>
+                  <button mat-icon-button color="warn" (click)="delete(cat)"><mat-icon>delete</mat-icon></button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

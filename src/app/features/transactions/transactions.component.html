@@ -1,0 +1,112 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>Transactions</h1>
+      <p>Manage your income and expenses</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openDialog()">
+      <mat-icon>add</mat-icon> Add Transaction
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card filter-card">
+    <form [formGroup]="filterForm" class="filters-grid">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search</mat-label>
+        <input matInput formControlName="search" placeholder="Search descriptions..." />
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option value="">All</mat-option>
+          <mat-option value="INCOME">Income</mat-option>
+          <mat-option value="EXPENSE">Expense</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="categoryId">
+          <mat-option value="">All</mat-option>
+          @for (cat of categories; track cat.id) {
+            <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>From</mat-label>
+        <input matInput [matDatepicker]="fromPicker" formControlName="startDate" />
+        <mat-datepicker-toggle matSuffix [for]="fromPicker" />
+        <mat-datepicker #fromPicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>To</mat-label>
+        <input matInput [matDatepicker]="toPicker" formControlName="endDate" />
+        <mat-datepicker-toggle matSuffix [for]="toPicker" />
+        <mat-datepicker #toPicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Min Amount</mat-label>
+        <input matInput type="number" formControlName="minAmount" />
+        <span matPrefix>$&nbsp;</span>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Max Amount</mat-label>
+        <input matInput type="number" formControlName="maxAmount" />
+        <span matPrefix>$&nbsp;</span>
+      </mat-form-field>
+
+      <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-btn">
+        <mat-icon>clear</mat-icon> Clear
+      </button>
+    </form>
+  </div>
+
+  <!-- Transactions List -->
+  <div class="card mt-16">
+    @if (loading) {
+      <div class="loading-state"><mat-spinner diameter="40" /></div>
+    } @else if (transactions.length === 0) {
+      <div class="empty-state">
+        <mat-icon>receipt_long</mat-icon>
+        <p>No transactions found</p>
+        <button mat-stroked-button color="primary" (click)="openDialog()">Add Transaction</button>
+      </div>
+    } @else {
+      <div class="tx-count">{{ transactions.length }} transaction{{ transactions.length !== 1 ? 's' : '' }}</div>
+      <div class="tx-list">
+        @for (t of transactions; track t.id) {
+          <div class="tx-row">
+            <div class="tx-icon" [style.background]="t.categoryColor + '20'">
+              <mat-icon [style.color]="t.categoryColor">{{ t.categoryIcon }}</mat-icon>
+            </div>
+            <div class="tx-info">
+              <span class="tx-desc">{{ t.description || t.categoryName }}</span>
+              <span class="tx-meta">{{ t.categoryName }} · {{ t.date | date:'MMM d, y' }}</span>
+            </div>
+            <div class="tx-right">
+              <span class="tx-amount" [class.amount-income]="t.type === 'INCOME'" [class.amount-expense]="t.type === 'EXPENSE'">
+                {{ t.type === 'INCOME' ? '+' : '-' }}{{ formatCurrency(t.amount) }}
+              </span>
+              <div class="tx-actions">
+                <button mat-icon-button (click)="openDialog(t)" title="Edit">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="delete(t)" title="Delete">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

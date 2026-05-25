@@ -1,0 +1,79 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1>Savings Goals</h1>
+      <p>Track your financial goals</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openDialog()">
+      <mat-icon>add</mat-icon> New Goal
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state"><mat-spinner diameter="48" /></div>
+  } @else if (goals.length === 0) {
+    <div class="empty-page">
+      <div class="empty-icon"><mat-icon>savings</mat-icon></div>
+      <h2>No Goals Yet</h2>
+      <p>Set a savings goal to start working towards it</p>
+      <button mat-flat-button color="primary" (click)="openDialog()">Create Your First Goal</button>
+    </div>
+  } @else {
+    <div class="goals-grid">
+      @for (goal of goals; track goal.id) {
+        <div class="goal-card" [style.border-top-color]="goal.color">
+          <div class="goal-header">
+            <div class="goal-icon" [style.background]="goal.color + '20'">
+              <mat-icon [style.color]="goal.color">{{ goal.icon }}</mat-icon>
+            </div>
+            <div class="goal-title-area">
+              <h3>{{ goal.name }}</h3>
+              @if (goal.description) {
+                <p class="goal-desc">{{ goal.description }}</p>
+              }
+            </div>
+            <div class="goal-menu">
+              <button mat-icon-button (click)="openDialog(goal)"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button color="warn" (click)="delete(goal)"><mat-icon>delete</mat-icon></button>
+            </div>
+          </div>
+
+          <div class="goal-amounts">
+            <div class="amount-current" [style.color]="goal.color">{{ formatCurrency(goal.currentAmount) }}</div>
+            <div class="amount-sep">/</div>
+            <div class="amount-target">{{ formatCurrency(goal.targetAmount) }}</div>
+          </div>
+
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill"
+                 [style.width.%]="Math.min(goal.progressPercent, 100)"
+                 [style.background]="goal.color">
+            </div>
+          </div>
+          <div class="progress-labels">
+            <span class="pct">{{ goal.progressPercent | number:'1.0-1' }}%</span>
+            <span class="remaining">{{ formatCurrency(goal.targetAmount - goal.currentAmount) }} to go</span>
+          </div>
+
+          @if (goal.deadline) {
+            <div class="deadline" [class.overdue]="daysLeft(goal.deadline) < 0">
+              <mat-icon>event</mat-icon>
+              <span>{{ daysLeft(goal.deadline) > 0 ? daysLeft(goal.deadline) + ' days left' : 'Overdue' }}</span>
+            </div>
+          }
+
+          @if (goal.progressPercent >= 100) {
+            <div class="completed-badge">
+              <mat-icon>check_circle</mat-icon> Goal Achieved!
+            </div>
+          } @else {
+            <button mat-stroked-button class="deposit-btn" [style.color]="goal.color"
+                    [style.border-color]="goal.color" (click)="openDeposit(goal)">
+              <mat-icon>add</mat-icon> Add Funds
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,10 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 380px;
+  padding-top: 8px;
+}
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.deposit-label { margin-bottom: 12px; color: #64748b; font-size: 0.9rem; }
+.color-swatch { display: inline-block; width: 18px; height: 18px; border-radius: 4px; }

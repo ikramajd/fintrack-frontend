@@ -1,0 +1,30 @@
+.page-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+  h1 { font-size: 1.75rem; font-weight: 700; color: #1e293b; }
+  p { color: #64748b; margin-top: 4px; }
+  button { display: flex; align-items: center; gap: 6px; border-radius: 10px; }
+}
+
+.loading-state { display: flex; justify-content: center; padding: 80px; }
+
+.section-header { margin-bottom: 16px; }
+
+.section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 1rem; font-weight: 600;
+  &.income { color: #22c55e; mat-icon { color: #22c55e; } }
+  &.expense { color: #ef4444; mat-icon { color: #ef4444; } }
+}
+
+.cat-list { display: flex; flex-direction: column; gap: 2px; }
+
+.cat-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 8px; border-radius: 10px; transition: background 0.1s;
+  &:hover { background: #f8fafc; .cat-actions { opacity: 1; } }
+
+  .cat-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; mat-icon { font-size: 18px; width: 18px; height: 18px; } }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .cat-name { flex: 1; font-size: 0.9rem; font-weight: 500; color: #1e293b; }
+  .cat-actions { opacity: 0; transition: opacity 0.15s; display: flex; }
+}

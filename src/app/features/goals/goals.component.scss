@@ -1,0 +1,92 @@
+.page-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+  h1 { font-size: 1.75rem; font-weight: 700; color: #1e293b; }
+  p { color: #64748b; margin-top: 4px; }
+  button { display: flex; align-items: center; gap: 6px; border-radius: 10px; }
+}
+
+.loading-state { display: flex; justify-content: center; padding: 80px; }
+
+.empty-page {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px 24px; gap: 16px; text-align: center;
+
+  .empty-icon {
+    width: 80px; height: 80px; background: #f1f5f9; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    mat-icon { font-size: 40px; width: 40px; height: 40px; color: #94a3b8; }
+  }
+  h2 { font-size: 1.4rem; font-weight: 600; color: #1e293b; }
+  p { color: #64748b; }
+}
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.goal-card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  .goal-icon {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    mat-icon { font-size: 22px; width: 22px; height: 22px; }
+  }
+
+  .goal-title-area { flex: 1; h3 { font-size: 1rem; font-weight: 600; color: #1e293b; } .goal-desc { font-size: 0.82rem; color: #94a3b8; margin-top: 2px; } }
+  .goal-menu { display: flex; opacity: 0; transition: opacity 0.15s; }
+  &:hover .goal-menu { opacity: 1; }
+}
+
+.goal-amounts {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  .amount-current { font-size: 1.4rem; font-weight: 700; }
+  .amount-sep { color: #cbd5e1; font-size: 1.1rem; }
+  .amount-target { font-size: 1rem; color: #64748b; }
+}
+
+.progress-labels {
+  display: flex; justify-content: space-between;
+  .pct { font-size: 0.82rem; font-weight: 600; color: #475569; }
+  .remaining { font-size: 0.82rem; color: #94a3b8; }
+}
+
+.deadline {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.82rem; color: #64748b;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &.overdue { color: #ef4444; }
+}
+
+.completed-badge {
+  display: flex; align-items: center; gap: 6px;
+  color: #22c55e; font-weight: 600; font-size: 0.9rem;
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+.deposit-btn {
+  width: 100%;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
