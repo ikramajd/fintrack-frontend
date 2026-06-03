@@ -1,66 +1,84 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
 import { Goal } from '../../core/models/models';
-import { GoalDialogComponent } from '../../shared/components/goal-dialog/goal-dialog.component';
 
 @Component({
   selector: 'app-goals',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, MatButtonModule, MatIconModule, MatDialogModule,
-    MatSnackBarModule, MatProgressSpinnerModule],
-  templateUrl: './goals.component.html',
-  styleUrl: './goals.component.scss'
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './goals.component.html'
 })
 export class GoalsComponent implements OnInit {
   goals: Goal[] = [];
   loading = false;
+
+  showForm = false;
+  editingId: number | null = null;
+  form: FormGroup;
+
   Math = Math;
 
-  constructor(private api: ApiService, private dialog: MatDialog, private snack: MatSnackBar) {}
+  constructor(private api: ApiService, private fb: FormBuilder) {
+    this.form = this.fb.group({
+      name: ['', Validators.required],
+      description: [''],
+      targetAmount: [null, [Validators.required, Validators.min(1)]],
+      currentAmount: [0],
+      deadline: ['']
+    });
+  }
 
-  ngOnInit(): void { this.loadGoals(); }
+  ngOnInit(): void { this.load(); }
 
-  loadGoals(): void {
+  load(): void {
     this.loading = true;
     this.api.getGoals().subscribe({
-      next: g => { this.goals = g; this.loading = false; },
+      next: (g) => { this.goals = g; this.loading = false; },
       error: () => { this.loading = false; }
     });
   }
 
-  openDialog(goal?: Goal): void {
-    const ref = this.dialog.open(GoalDialogComponent, { data: { goal }, width: '480px' });
-    ref.afterClosed().subscribe(result => {
-      if (result) { this.loadGoals(); this.snack.open(goal ? 'Goal updated' : 'Goal created', 'Close', { duration: 2500 }); }
+  openCreate(): void {
+    this.editingId = null;
+    this.form.reset({ name: '', description: '', targetAmount: null, currentAmount: 0, deadline: '' });
+    this.showForm = true;
+  }
+
+  openEdit(g: Goal): void {
+    this.editingId = g.id;
+    this.form.reset({
+      name: g.name, description: g.description, targetAmount: g.targetAmount,
+      currentAmount: g.currentAmount, deadline: g.deadline
     });
+    this.showForm = true;
   }
 
-  openDeposit(goal: Goal): void {
-    const ref = this.dialog.open(GoalDialogComponent, { data: { goal, depositMode: true }, width: '380px' });
-    ref.afterClosed().subscribe(result => {
-      if (result) { this.loadGoals(); this.snack.open('Funds added!', 'Close', { duration: 2500 }); }
-    });
+  cancel(): void { this.showForm = false; this.editingId = null; }
+
+  submit(): void {
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    const payload = this.form.value;
+    const request = this.editingId
+      ? this.api.updateGoal(this.editingId, payload)
+      : this.api.createGoal(payload);
+    request.subscribe(() => { this.showForm = false; this.editingId = null; this.load(); });
   }
 
-  delete(goal: Goal): void {
-    if (!confirm(`Delete goal "${goal.name}"?`)) return;
-    this.api.deleteGoal(goal.id).subscribe({
-      next: () => { this.goals = this.goals.filter(g => g.id !== goal.id); this.snack.open('Goal deleted', 'Close', { duration: 2500 }); }
-    });
+  deposit(g: Goal): void {
+    const value = prompt(`Combien voulez-vous ajouter à "${g.name}" ? (€)`);
+    if (!value) return;
+    const amount = Number(value);
+    if (isNaN(amount) || amount <= 0) return;
+    this.api.depositGoal(g.id, amount).subscribe(() => this.load());
   }
 
-  formatCurrency(v: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
+  delete(g: Goal): void {
+    if (!confirm(`Supprimer l'objectif "${g.name}" ?`)) return;
+    this.api.deleteGoal(g.id).subscribe(() => this.load());
   }
 
-  daysLeft(deadline: string): number {
-    const diff = new Date(deadline).getTime() - Date.now();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-  }
+  get name() { return this.form.controls['name']; }
+  get targetAmount() { return this.form.controls['targetAmount']; }
 }

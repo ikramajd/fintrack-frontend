@@ -1,74 +1,128 @@
-<div class="page-container">
-  <div class="page-header">
-    <div>
-      <h1>Categories</h1>
-      <p>Organize your transactions</p>
-    </div>
-    <button mat-flat-button color="primary" (click)="openDialog()">
-      <mat-icon>add</mat-icon> New Category
-    </button>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">Catégories</h2>
+    <p class="text-muted mb-0">Organisez vos transactions</p>
   </div>
+  <button class="btn btn-primary" (click)="openCreate()">
+    <i class="bi bi-plus-lg me-1"></i>Nouvelle catégorie
+  </button>
+</div>
 
-  @if (loading) {
-    <div class="loading-state"><mat-spinner diameter="40" /></div>
-  } @else {
-    <div class="grid-2">
-      <!-- Income -->
-      <div class="card">
-        <div class="section-header">
-          <div class="section-title income">
-            <mat-icon>trending_up</mat-icon>
-            <span>Income ({{ incomeCategories.length }})</span>
-          </div>
+@if (showForm) {
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{{ editingId ? 'Modifier' : 'Ajouter' }} une catégorie</h5>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control" formControlName="name"
+                 [class.is-invalid]="name.invalid && name.touched">
+          <div class="invalid-feedback">Nom requis.</div>
         </div>
-        @if (incomeCategories.length === 0) {
-          <div class="empty-state"><mat-icon>category</mat-icon><p>No income categories</p></div>
-        } @else {
-          <div class="cat-list">
-            @for (cat of incomeCategories; track cat.id) {
-              <div class="cat-row">
-                <div class="cat-icon" [style.background]="cat.color + '20'">
-                  <mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
-                </div>
-                <div class="cat-dot" [style.background]="cat.color"></div>
-                <span class="cat-name">{{ cat.name }}</span>
-                <div class="cat-actions">
-                  <button mat-icon-button (click)="openDialog(cat)"><mat-icon>edit</mat-icon></button>
-                  <button mat-icon-button color="warn" (click)="delete(cat)"><mat-icon>delete</mat-icon></button>
-                </div>
-              </div>
+        <div class="col-md-4">
+          <label class="form-label">Type</label>
+          <select class="form-select" formControlName="type">
+            <option value="INCOME">Revenu</option>
+            <option value="EXPENSE">Dépense</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label">
+            Couleur
+            <span class="badge ms-2" [style.background-color]="selectedColor">
+              {{ selectedColorName }}
+            </span>
+          </label>
+          <div class="d-flex flex-wrap gap-2">
+            @for (col of colors; track col.hex) {
+              <button type="button" class="color-swatch"
+                      [style.background-color]="col.hex"
+                      [class.selected]="selectedColor === col.hex"
+                      [title]="col.name"
+                      (click)="selectColor(col.hex)"></button>
             }
           </div>
-        }
-      </div>
-
-      <!-- Expense -->
-      <div class="card">
-        <div class="section-header">
-          <div class="section-title expense">
-            <mat-icon>trending_down</mat-icon>
-            <span>Expenses ({{ expenseCategories.length }})</span>
-          </div>
         </div>
-        @if (expenseCategories.length === 0) {
-          <div class="empty-state"><mat-icon>category</mat-icon><p>No expense categories</p></div>
-        } @else {
-          <div class="cat-list">
-            @for (cat of expenseCategories; track cat.id) {
-              <div class="cat-row">
-                <div class="cat-icon" [style.background]="cat.color + '20'">
-                  <mat-icon [style.color]="cat.color">{{ cat.icon }}</mat-icon>
-                </div>
-                <span class="cat-name">{{ cat.name }}</span>
-                <div class="cat-actions">
-                  <button mat-icon-button (click)="openDialog(cat)"><mat-icon>edit</mat-icon></button>
-                  <button mat-icon-button color="warn" (click)="delete(cat)"><mat-icon>delete</mat-icon></button>
-                </div>
-              </div>
+
+        <div class="col-12">
+          <label class="form-label">Icône</label>
+          <div class="d-flex flex-wrap gap-2">
+            @for (ic of icons; track ic) {
+              <button type="button" class="icon-pick"
+                      [class.selected]="selectedIcon === ic"
+                      (click)="selectIcon(ic)">
+                <i class="bi bi-{{ ic }}"></i>
+              </button>
             }
           </div>
+        </div>
+        @if (form.value.type === 'EXPENSE') {
+          <div class="col-md-6">
+            <label class="form-label">Budget mensuel (€, optionnel)</label>
+            <input type="number" class="form-control" formControlName="monthlyBudget">
+          </div>
         }
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">{{ editingId ? 'Mettre à jour' : 'Créer' }}</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (loading) {
+  <p class="text-center text-muted my-4">Chargement...</p>
+} @else {
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title text-success mb-3">
+            <i class="bi bi-arrow-up-circle me-1"></i>Revenus ({{ incomeCategories.length }})
+          </h5>
+          @for (c of incomeCategories; track c.id) {
+            <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+              <span>
+                <span class="badge rounded-pill me-2" [style.background-color]="c.color">
+                  <i class="bi bi-{{ c.icon }}"></i>
+                </span>
+                <a [routerLink]="['/categories', c.id]" class="text-decoration-none text-dark">{{ c.name }}</a>
+              </span>
+              <span>
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit(c)"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger" (click)="delete(c)"><i class="bi bi-trash"></i></button>
+              </span>
+            </div>
+          }
+        </div>
       </div>
     </div>
-  }
-</div>
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title text-danger mb-3">
+            <i class="bi bi-arrow-down-circle me-1"></i>Dépenses ({{ expenseCategories.length }})
+          </h5>
+          @for (c of expenseCategories; track c.id) {
+            <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+              <span>
+                <span class="badge rounded-pill me-2" [style.background-color]="c.color">
+                  <i class="bi bi-{{ c.icon }}"></i>
+                </span>
+                <a [routerLink]="['/categories', c.id]" class="text-decoration-none text-dark">{{ c.name }}</a>
+                @if (c.monthlyBudget) {
+                  <small class="text-muted ms-2">Budget : {{ c.monthlyBudget | number:'1.0-0' }} €</small>
+                }
+              </span>
+              <span>
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit(c)"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger" (click)="delete(c)"><i class="bi bi-trash"></i></button>
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

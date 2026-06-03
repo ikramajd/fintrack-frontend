@@ -1,91 +1,53 @@
-.loading-state {
+// Jauge SVG du score de santé (faite main, pas de librairie)
+.health-gauge {
+  width: 200px;
+  height: 180px;
+}
+.gauge-arc {
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gauge-score {
+  font-size: 44px;
+  font-weight: 800;
+  fill: #1e293b;
+}
+.gauge-grade {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.gauge-sub {
+  font-size: 11px;
+  fill: #94a3b8;
+}
+
+// Barres du graphique mensuel
+.bar-income {
+  width: 16px;
+  background-color: #22c55e;
+  transition: height 0.6s ease;
+}
+.bar-expense {
+  width: 16px;
+  background-color: #ef4444;
+  transition: height 0.6s ease;
+}
+
+// Donut en CSS pur (conic-gradient)
+.donut {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 400px;
 }
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-
-  h1 { font-size: 1.75rem; font-weight: 700; color: #1e293b; }
-  p { color: #64748b; margin-top: 4px; }
-
-  a {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 10px;
-  }
-}
-
-.stat-card {
-  background: white;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  border: 1px solid #e2e8f0;
-
-  &.balance-card { background: linear-gradient(135deg, #4f46e5, #7c3aed); * { color: white !important; } }
-
-  .stat-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .stat-icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    mat-icon { color: white; font-size: 20px; width: 20px; height: 20px; }
-  }
-
-  .stat-label { font-size: 0.85rem; font-weight: 500; color: #64748b; }
-  .stat-value { font-size: 1.6rem; font-weight: 700; color: #1e293b; &.negative { color: #ef4444; } &.income { color: #22c55e; } &.expense { color: #ef4444; } }
-  .stat-sub { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; display: block; }
-}
-
-.chart-container {
-  height: 260px;
-  position: relative;
-}
-
-.transactions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.transaction-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 8px;
-  border-radius: 10px;
-  transition: background 0.1s;
-
-  &:hover { background: #f8fafc; }
-
-  .tx-icon {
-    width: 42px; height: 42px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    mat-icon { font-size: 20px; width: 20px; height: 20px; }
-  }
-
-  .tx-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    .tx-desc { font-size: 0.9rem; font-weight: 500; color: #1e293b; }
-    .tx-meta { font-size: 0.78rem; color: #94a3b8; margin-top: 2px; }
-  }
-
-  .tx-amount { font-size: 0.95rem; font-weight: 600; }
+.donut-hole {
+  width: 78px;
+  height: 78px;
+  background: #fff;
+  border-radius: 50%;
 }

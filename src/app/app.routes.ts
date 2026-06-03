@@ -1,40 +1,28 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/guards/auth.guard';
 
+// Définition des routes (session 6)
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   {
-    path: 'login',
-    canActivate: [guestGuard],
-    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+    path: 'dashboard',
+    loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
   {
-    path: 'register',
-    canActivate: [guestGuard],
-    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
+    path: 'transactions',
+    loadComponent: () => import('./features/transactions/transactions.component').then(m => m.TransactionsComponent)
   },
   {
-    path: '',
-    canActivate: [authGuard],
-    loadComponent: () => import('./shared/components/sidenav/sidenav.component').then(m => m.SidenavComponent),
-    children: [
-      {
-        path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
-      {
-        path: 'transactions',
-        loadComponent: () => import('./features/transactions/transactions.component').then(m => m.TransactionsComponent)
-      },
-      {
-        path: 'goals',
-        loadComponent: () => import('./features/goals/goals.component').then(m => m.GoalsComponent)
-      },
-      {
-        path: 'categories',
-        loadComponent: () => import('./features/categories/categories.component').then(m => m.CategoriesComponent)
-      }
-    ]
+    path: 'categories',
+    loadComponent: () => import('./features/categories/categories.component').then(m => m.CategoriesComponent)
+  },
+  {
+    // Route avec paramètre dynamique (session 6)
+    path: 'categories/:id',
+    loadComponent: () => import('./features/category-detail/category-detail.component').then(m => m.CategoryDetailComponent)
+  },
+  {
+    path: 'goals',
+    loadComponent: () => import('./features/goals/goals.component').then(m => m.GoalsComponent)
   },
   { path: '**', redirectTo: 'dashboard' }
 ];

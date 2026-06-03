@@ -4,28 +4,35 @@ import { Observable } from 'rxjs';
 import { Category, Dashboard, Goal, Transaction, TransactionFilter } from '../models/models';
 import { environment } from '../../environments/environment';
 
+// Service HttpClient : appels REST vers le backend (session 5)
+// L'URL de base est isolée dans environment.ts (session 5)
 @Injectable({ providedIn: 'root' })
 export class ApiService {
+
   private api = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
-  // Dashboard
+  // ---- Tableau de bord ----
   getDashboard(): Observable<Dashboard> {
     return this.http.get<Dashboard>(`${this.api}/dashboard`);
   }
 
-  // Transactions
+  // ---- Transactions ----
   getTransactions(filter?: TransactionFilter): Observable<Transaction[]> {
     let params = new HttpParams();
     if (filter) {
-      Object.entries(filter).forEach(([key, val]) => {
-        if (val !== undefined && val !== null && val !== '') {
-          params = params.set(key, String(val));
+      Object.entries(filter).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params = params.set(key, String(value));
         }
       });
     }
     return this.http.get<Transaction[]>(`${this.api}/transactions`, { params });
+  }
+
+  exportTransactions(): Observable<Blob> {
+    return this.http.get(`${this.api}/transactions/export`, { responseType: 'blob' });
   }
 
   createTransaction(t: Partial<Transaction>): Observable<Transaction> {
@@ -40,7 +47,7 @@ export class ApiService {
     return this.http.delete<void>(`${this.api}/transactions/${id}`);
   }
 
-  // Categories
+  // ---- Catégories ----
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.api}/categories`);
   }
@@ -57,7 +64,7 @@ export class ApiService {
     return this.http.delete<void>(`${this.api}/categories/${id}`);
   }
 
-  // Goals
+  // ---- Objectifs ----
   getGoals(): Observable<Goal[]> {
     return this.http.get<Goal[]>(`${this.api}/goals`);
   }
@@ -71,7 +78,7 @@ export class ApiService {
   }
 
   depositGoal(id: number, amount: number): Observable<Goal> {
-    return this.http.patch<Goal>(`${this.api}/goals/${id}/deposit`, { amount });
+    return this.http.post<Goal>(`${this.api}/goals/${id}/deposit`, { amount });
   }
 
   deleteGoal(id: number): Observable<void> {

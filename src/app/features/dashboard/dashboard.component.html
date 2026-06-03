@@ -1,124 +1,225 @@
-<div class="page-container">
-  @if (loading) {
-    <div class="loading-state">
-      <mat-spinner diameter="48" />
-    </div>
-  } @else if (data) {
-    <!-- Header -->
-    <div class="page-header">
-      <div>
-        <h1>Dashboard</h1>
-        <p>Your financial overview</p>
-      </div>
-      <a mat-flat-button color="primary" routerLink="/transactions">
-        <mat-icon>add</mat-icon> Add Transaction
-      </a>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold mb-0">Tableau de bord</h2>
+    <p class="text-muted mb-0">Votre aperçu financier</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/transactions">
+    <i class="bi bi-plus-lg me-1"></i>Ajouter une transaction
+  </a>
+</div>
 
-    <!-- Stat Cards -->
-    <div class="grid-4">
-      <div class="stat-card balance-card">
-        <div class="stat-row">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #4f46e5, #7c3aed)">
-            <mat-icon>account_balance_wallet</mat-icon>
-          </div>
-          <span class="stat-label">Net Balance</span>
-        </div>
-        <div class="stat-value" [class.negative]="data.balance < 0">
-          {{ formatCurrency(data.balance) }}
-        </div>
-      </div>
+@if (loading) {
+  <p class="text-center text-muted my-5">Chargement...</p>
+} @else if (data) {
 
-      <div class="stat-card">
-        <div class="stat-row">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a)">
-            <mat-icon>trending_up</mat-icon>
-          </div>
-          <span class="stat-label">Total Income</span>
-        </div>
-        <div class="stat-value income">{{ formatCurrency(data.totalIncome) }}</div>
-        <span class="stat-sub">This month: {{ formatCurrency(data.monthlyIncome) }}</span>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-row">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626)">
-            <mat-icon>trending_down</mat-icon>
-          </div>
-          <span class="stat-label">Total Expenses</span>
-        </div>
-        <div class="stat-value expense">{{ formatCurrency(data.totalExpense) }}</div>
-        <span class="stat-sub">This month: {{ formatCurrency(data.monthlyExpense) }}</span>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-row">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706)">
-            <mat-icon>savings</mat-icon>
-          </div>
-          <span class="stat-label">Savings Rate</span>
-        </div>
-        <div class="stat-value">
-          {{ data.totalIncome > 0 ? ((data.totalIncome - data.totalExpense) / data.totalIncome * 100 | number:'1.0-1') : 0 }}%
+  <!-- Cartes de synthèse -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card shadow-sm text-white border-0" style="background: linear-gradient(135deg,#4f46e5,#7c3aed)">
+        <div class="card-body">
+          <div class="text-white-50 small text-uppercase"><i class="bi bi-wallet2 me-1"></i>Solde net</div>
+          <div class="fs-4 fw-bold">{{ data.balance | number:'1.2-2' }} €</div>
         </div>
       </div>
     </div>
-
-    <!-- Charts Row -->
-    <div class="grid-2 mt-24">
-      <div class="card">
-        <div class="card-title">Monthly Overview (Last 6 Months)</div>
-        <div class="chart-container">
-          <canvas id="lineChart"></canvas>
+    <div class="col-md-3">
+      <div class="card shadow-sm text-white border-0" style="background: linear-gradient(135deg,#059669,#10b981)">
+        <div class="card-body">
+          <div class="text-white-50 small text-uppercase"><i class="bi bi-arrow-up-circle me-1"></i>Revenus</div>
+          <div class="fs-4 fw-bold">{{ data.totalIncome | number:'1.2-2' }} €</div>
+          <small class="text-white-50">Ce mois : {{ data.monthlyIncome | number:'1.0-0' }} €</small>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-title">Expenses by Category (This Month)</div>
-        @if (data.categorySpends.length > 0) {
-          <div class="chart-container">
-            <canvas id="doughnutChart"></canvas>
-          </div>
-        } @else {
-          <div class="empty-state">
-            <mat-icon>pie_chart</mat-icon>
-            <p>No expense data this month</p>
-          </div>
-        }
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm text-white border-0" style="background: linear-gradient(135deg,#dc2626,#f43f5e)">
+        <div class="card-body">
+          <div class="text-white-50 small text-uppercase"><i class="bi bi-arrow-down-circle me-1"></i>Dépenses</div>
+          <div class="fs-4 fw-bold">{{ data.totalExpense | number:'1.2-2' }} €</div>
+          <small class="text-white-50">Ce mois : {{ data.monthlyExpense | number:'1.0-0' }} €</small>
+        </div>
       </div>
     </div>
-
-    <!-- Recent Transactions -->
-    <div class="card mt-24">
-      <div class="flex justify-between items-center" style="margin-bottom:16px">
-        <div class="card-title" style="margin-bottom:0">Recent Transactions</div>
-        <a mat-button color="primary" routerLink="/transactions">View all</a>
+    <div class="col-md-3">
+      <div class="card shadow-sm text-white border-0" style="background: linear-gradient(135deg,#b45309,#f59e0b)">
+        <div class="card-body">
+          <div class="text-white-50 small text-uppercase"><i class="bi bi-piggy-bank me-1"></i>Taux d'épargne</div>
+          <div class="fs-4 fw-bold">{{ savingsRate }} %</div>
+        </div>
       </div>
+    </div>
+  </div>
 
-      @if (data.recentTransactions.length > 0) {
-        <div class="transactions-list">
-          @for (t of data.recentTransactions; track t.id) {
-            <div class="transaction-row">
-              <div class="tx-icon" [style.background]="t.categoryColor + '20'">
-                <mat-icon [style.color]="t.categoryColor">{{ t.categoryIcon }}</mat-icon>
+  <!-- Score de santé financière -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3"><i class="bi bi-heart-pulse me-2 text-primary"></i>Score de santé financière</h5>
+      <div class="row align-items-center">
+        <!-- Jauge SVG -->
+        <div class="col-md-4 text-center">
+          <svg viewBox="0 0 200 180" class="health-gauge">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#e9ecef" stroke-width="16"
+                    stroke-linecap="round" stroke-dasharray="377 503" transform="rotate(135 100 100)"/>
+            <circle cx="100" cy="100" r="80" fill="none" [attr.stroke]="data.healthScore.color" stroke-width="16"
+                    stroke-linecap="round" [attr.stroke-dasharray]="ARC + ' ' + CIRC"
+                    [attr.stroke-dashoffset]="arcOffset" transform="rotate(135 100 100)"
+                    class="gauge-arc"/>
+            <text x="100" y="95" text-anchor="middle" class="gauge-score">{{ displayScore }}</text>
+            <text x="100" y="118" text-anchor="middle" class="gauge-grade"
+                  [attr.fill]="data.healthScore.color">{{ data.healthScore.grade }}</text>
+            <text x="100" y="135" text-anchor="middle" class="gauge-sub">sur 100</text>
+          </svg>
+          <div class="alert alert-warning py-2 px-3 small mt-2 mb-0 text-start">
+            <i class="bi bi-lightbulb me-1"></i>{{ data.healthScore.tip }}
+          </div>
+        </div>
+        <!-- Détail des 4 composantes -->
+        <div class="col-md-8">
+          <div class="row g-3">
+            @for (s of data.healthScore.breakdown; track s.name) {
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-1">
+                  <i class="bi bi-{{ s.icon }} me-2" [style.color]="metricColor(s)"></i>
+                  <span class="fw-semibold small flex-grow-1">{{ s.name }}</span>
+                  <span class="fw-bold" [style.color]="metricColor(s)">{{ s.score }}</span>
+                  <span class="text-muted small">/{{ s.maxScore }}</span>
+                </div>
+                <div class="progress mb-1" style="height: 7px;">
+                  <div class="progress-bar" [style.width.%]="metricPct(s)"
+                       [style.background-color]="metricColor(s)"></div>
+                </div>
+                <small class="text-muted">{{ s.description }}</small>
               </div>
-              <div class="tx-info">
-                <span class="tx-desc">{{ t.description || t.categoryName }}</span>
-                <span class="tx-meta">{{ t.categoryName }} · {{ t.date | date:'MMM d, y' }}</span>
-              </div>
-              <span class="tx-amount" [class.amount-income]="t.type === 'INCOME'" [class.amount-expense]="t.type === 'EXPENSE'">
-                {{ t.type === 'INCOME' ? '+' : '-' }}{{ formatCurrency(t.amount) }}
-              </span>
-            </div>
-          }
+            }
+          </div>
         </div>
-      } @else {
-        <div class="empty-state">
-          <mat-icon>receipt_long</mat-icon>
-          <p>No transactions yet</p>
-          <a mat-stroked-button color="primary" routerLink="/transactions">Add your first transaction</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analyses -->
+  @if (data.insights.length > 0) {
+    <div class="row g-3 mb-4">
+      @for (insight of data.insights; track insight) {
+        <div class="col-md-4">
+          <div class="alert alert-light border d-flex align-items-start mb-0 h-100">
+            <i class="bi bi-graph-up-arrow text-primary me-2 mt-1"></i>
+            <span class="small">{{ insight }}</span>
+          </div>
         </div>
       }
     </div>
   }
-</div>
+
+  <!-- Alertes budget -->
+  @if (data.budgetAlerts.length > 0) {
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Alertes de budget</h5>
+        @for (a of data.budgetAlerts; track a.category) {
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small mb-1">
+              <span>
+                <span class="badge rounded-pill me-1" [style.background-color]="a.color">&nbsp;</span>
+                {{ a.category }}
+                <span class="badge ms-2" [class.bg-danger]="a.overBudget" [class.bg-warning]="!a.overBudget" [class.text-dark]="!a.overBudget">
+                  {{ a.overBudget ? 'Dépassé' : 'Proche du plafond' }}
+                </span>
+              </span>
+              <span class="text-muted">{{ a.spent | number:'1.0-0' }} € / {{ a.budget | number:'1.0-0' }} €</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+              <div class="progress-bar" [class.bg-danger]="a.overBudget" [class.bg-warning]="!a.overBudget"
+                   [style.width.%]="a.percentage > 100 ? 100 : a.percentage"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="row g-4 mb-4">
+    <!-- Graphique en barres mensuel -->
+    <div class="col-md-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Aperçu mensuel (6 derniers mois)</h5>
+          <div class="d-flex justify-content-around align-items-end" style="height: 220px;">
+            @for (m of data.monthlyData; track m.month) {
+              <div class="text-center d-flex flex-column justify-content-end" style="height: 100%;">
+                <div class="d-flex align-items-end justify-content-center gap-1" style="height: 170px;">
+                  <div class="bar-income rounded-top" [style.height.%]="barHeight(m.income)"
+                       [title]="(m.income | number:'1.0-0') + ' € revenus'"></div>
+                  <div class="bar-expense rounded-top" [style.height.%]="barHeight(m.expense)"
+                       [title]="(m.expense | number:'1.0-0') + ' € dépenses'"></div>
+                </div>
+                <small class="text-muted mt-1">{{ monthLabel(m.month) }}</small>
+              </div>
+            }
+          </div>
+          <div class="d-flex gap-3 justify-content-center mt-3 small">
+            <span><span class="badge bg-success">&nbsp;</span> Revenus</span>
+            <span><span class="badge bg-danger">&nbsp;</span> Dépenses</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donut CSS des dépenses par catégorie -->
+    <div class="col-md-5">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Dépenses par catégorie (ce mois)</h5>
+          @if (data.categorySpends.length === 0) {
+            <p class="text-muted">Aucune dépense ce mois.</p>
+          } @else {
+            <div class="d-flex align-items-center gap-3">
+              <div class="donut" [style.background]="donutGradient">
+                <div class="donut-hole"></div>
+              </div>
+              <div class="flex-grow-1">
+                @for (c of data.categorySpends; track c.category) {
+                  <div class="d-flex justify-content-between small mb-1">
+                    <span>
+                      <span class="badge rounded-pill me-1" [style.background-color]="c.color">&nbsp;</span>
+                      {{ c.category }}
+                    </span>
+                    <span class="text-muted">{{ c.percentage | number:'1.0-0' }} %</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions récentes -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">Transactions récentes</h5>
+        <a routerLink="/transactions" class="btn btn-link btn-sm">Voir tout</a>
+      </div>
+      @if (data.recentTransactions.length === 0) {
+        <p class="text-muted mb-0">Aucune transaction pour le moment.</p>
+      } @else {
+        <ul class="list-group list-group-flush">
+          @for (t of data.recentTransactions; track t.id) {
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <span>
+                <span class="badge rounded-pill me-2" [style.background-color]="t.categoryColor">{{ t.categoryName }}</span>
+                {{ t.description || t.categoryName }}
+                <small class="text-muted ms-2">{{ t.date }}</small>
+              </span>
+              <span class="fw-semibold" [class.text-success]="t.type === 'INCOME'" [class.text-danger]="t.type === 'EXPENSE'">
+                {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | number:'1.2-2' }} €
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+}

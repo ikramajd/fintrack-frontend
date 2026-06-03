@@ -6,6 +6,7 @@ export interface Category {
   type: TransactionType;
   color: string;
   icon: string;
+  monthlyBudget?: number;
 }
 
 export interface Transaction {
@@ -18,7 +19,6 @@ export interface Transaction {
   categoryName: string;
   categoryColor: string;
   categoryIcon: string;
-  createdAt: string;
 }
 
 export interface Goal {
@@ -41,8 +41,34 @@ export interface MonthlyData {
 
 export interface CategorySpend {
   category: string;
+  color: string;
   amount: number;
   percentage: number;
+}
+
+export interface BudgetAlert {
+  category: string;
+  color: string;
+  budget: number;
+  spent: number;
+  percentage: number;
+  overBudget: boolean;
+}
+
+export interface SubScore {
+  name: string;
+  icon: string;
+  score: number;
+  maxScore: number;
+  description: string;
+}
+
+export interface HealthScore {
+  score: number;
+  grade: string;
+  color: string;
+  tip: string;
+  breakdown: SubScore[];
 }
 
 export interface Dashboard {
@@ -54,12 +80,9 @@ export interface Dashboard {
   monthlyData: MonthlyData[];
   categorySpends: CategorySpend[];
   recentTransactions: Transaction[];
-}
-
-export interface AuthResponse {
-  token: string;
-  name: string;
-  email: string;
+  insights: string[];
+  budgetAlerts: BudgetAlert[];
+  healthScore: HealthScore;
 }
 
 export interface TransactionFilter {

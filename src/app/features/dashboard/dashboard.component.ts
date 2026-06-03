@@ -1,28 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
-import { Dashboard, Transaction } from '../../core/models/models';
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
+import { Dashboard, SubScore } from '../../core/models/models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, MatIconModule, MatButtonModule,
-    MatProgressSpinnerModule, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
   data: Dashboard | null = null;
   loading = true;
-  private lineChart: Chart | null = null;
-  private doughnutChart: Chart | null = null;
+
+  // Jauge SVG (arc de 270°, rayon 80) — calcul fait main, pas de librairie
+  readonly ARC = 377;       // 2π × 80 × (270/360)
+  readonly CIRC = 503;      // 2π × 80
+  displayScore = 0;
+  arcOffset = 377;
 
   constructor(private api: ApiService) {}
 
@@ -31,98 +28,66 @@ export class DashboardComponent implements OnInit {
       next: (d) => {
         this.data = d;
         this.loading = false;
-        setTimeout(() => this.renderCharts(), 100);
+        setTimeout(() => this.animate(), 150);
       },
       error: () => { this.loading = false; }
     });
   }
 
-  private renderCharts(): void {
+  private animate(): void {
     if (!this.data) return;
-    this.renderLineChart();
-    this.renderDoughnutChart();
+    const target = this.data.healthScore.score;
+    this.arcOffset = this.ARC * (1 - target / 100);
+    // Compteur animé
+    const steps = 40;
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      this.displayScore = Math.round(target * (i / steps));
+      if (i >= steps) { this.displayScore = target; clearInterval(timer); }
+    }, 25);
   }
 
-  private renderLineChart(): void {
-    const ctx = document.getElementById('lineChart') as HTMLCanvasElement;
-    if (!ctx || !this.data) return;
-    if (this.lineChart) this.lineChart.destroy();
+  // ---- Graphique en barres mensuel (CSS) ----
+  get maxMonthly(): number {
+    if (!this.data) return 1;
+    let max = 1;
+    for (const m of this.data.monthlyData) max = Math.max(max, m.income, m.expense);
+    return max;
+  }
+  barHeight(value: number): number { return Math.round((value / this.maxMonthly) * 100); }
 
-    const labels = this.data.monthlyData.map(m => {
-      const [year, month] = m.month.split('-');
-      return new Date(+year, +month - 1).toLocaleString('default', { month: 'short', year: '2-digit' });
-    });
-
-    this.lineChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Income',
-            data: this.data.monthlyData.map(m => m.income),
-            backgroundColor: 'rgba(34,197,94,0.8)',
-            borderRadius: 6,
-          },
-          {
-            label: 'Expenses',
-            data: this.data.monthlyData.map(m => m.expense),
-            backgroundColor: 'rgba(239,68,68,0.8)',
-            borderRadius: 6,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.05)' },
-            ticks: { callback: (v) => '$' + v }
-          },
-          x: { grid: { display: false } }
-        }
-      }
-    });
+  monthLabel(month: string): string {
+    const [, m] = month.split('-');
+    const noms = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    return noms[Number(m) - 1] ?? month;
   }
 
-  private renderDoughnutChart(): void {
-    const ctx = document.getElementById('doughnutChart') as HTMLCanvasElement;
-    if (!ctx || !this.data || this.data.categorySpends.length === 0) return;
-    if (this.doughnutChart) this.doughnutChart.destroy();
-
-    const colors = ['#6366f1','#f97316','#22c55e','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#06b6d4','#84cc16'];
-
-    this.doughnutChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: this.data.categorySpends.map(c => c.category),
-        datasets: [{
-          data: this.data.categorySpends.map(c => c.amount),
-          backgroundColor: colors,
-          borderWidth: 2,
-          borderColor: '#fff',
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'right' },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` $${Number(ctx.parsed).toFixed(2)} (${this.data!.categorySpends[ctx.dataIndex].percentage.toFixed(1)}%)`
-            }
-          }
-        },
-        cutout: '65%'
-      }
-    });
+  // ---- Donut CSS (conic-gradient) ----
+  get donutGradient(): string {
+    if (!this.data || this.data.categorySpends.length === 0) return '#e9ecef';
+    let acc = 0;
+    const parts: string[] = [];
+    for (const c of this.data.categorySpends) {
+      const start = acc;
+      acc += c.percentage;
+      parts.push(`${c.color} ${start}% ${acc}%`);
+    }
+    return `conic-gradient(${parts.join(', ')})`;
   }
 
-  formatCurrency(val: number): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  // Couleur d'une sous-métrique selon son ratio
+  metricColor(s: SubScore): string {
+    const p = s.score / s.maxScore;
+    if (p >= 0.8) return '#22c55e';
+    if (p >= 0.5) return '#eab308';
+    if (p >= 0.25) return '#f97316';
+    return '#ef4444';
+  }
+  metricPct(s: SubScore): number { return Math.round((s.score / s.maxScore) * 100); }
+
+  get savingsRate(): number {
+    if (!this.data || this.data.totalIncome <= 0) return 0;
+    return Math.round((this.data.totalIncome - this.data.totalExpense) / this.data.totalIncome * 100);
   }
 }

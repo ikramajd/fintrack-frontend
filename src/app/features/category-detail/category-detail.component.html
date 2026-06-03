@@ -1,0 +1,48 @@
+<a routerLink="/categories" class="btn btn-link px-0 mb-2">
+  <i class="bi bi-arrow-left me-1"></i>Retour aux catégories
+</a>
+
+@if (loading) {
+  <p class="text-center text-muted my-5">Chargement...</p>
+} @else {
+  <div class="d-flex align-items-center mb-4">
+    @if (category) {
+      <span class="badge rounded-circle me-3 p-3 fs-5" [style.background-color]="category.color">
+        <i class="bi bi-{{ category.icon }}"></i>
+      </span>
+      <div>
+        <h2 class="fw-bold mb-0">{{ category.name }}</h2>
+        <p class="text-muted mb-0">
+          {{ transactions.length }} transaction(s) · Total : {{ total | number:'1.2-2' }} €
+        </p>
+      </div>
+    }
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      @if (transactions.length === 0) {
+        <p class="text-muted text-center my-4">Aucune transaction dans cette catégorie.</p>
+      } @else {
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr><th>Date</th><th>Description</th><th class="text-end">Montant</th></tr>
+          </thead>
+          <tbody>
+            @for (t of transactions; track t.id) {
+              <tr>
+                <td>{{ t.date }}</td>
+                <td>{{ t.description || '—' }}</td>
+                <td class="text-end fw-semibold"
+                    [class.text-success]="t.type === 'INCOME'"
+                    [class.text-danger]="t.type === 'EXPENSE'">
+                  {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | number:'1.2-2' }} €
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+}

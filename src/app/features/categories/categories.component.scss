@@ -1,30 +1,43 @@
-.page-header {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
-  h1 { font-size: 1.75rem; font-weight: 700; color: #1e293b; }
-  p { color: #64748b; margin-top: 4px; }
-  button { display: flex; align-items: center; gap: 6px; border-radius: 10px; }
+// Pastille de couleur cliquable
+.color-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #e5e7eb;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.color-swatch:hover {
+  transform: scale(1.12);
+}
+.color-swatch.selected {
+  box-shadow: 0 0 0 3px #1e2235;
+  transform: scale(1.12);
 }
 
-.loading-state { display: flex; justify-content: center; padding: 80px; }
-
-.section-header { margin-bottom: 16px; }
-
-.section-title {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 1rem; font-weight: 600;
-  &.income { color: #22c55e; mat-icon { color: #22c55e; } }
-  &.expense { color: #ef4444; mat-icon { color: #ef4444; } }
+// Bouton de sélection d'icône
+.icon-pick {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1.5px solid #eceef5;
+  background: #fff;
+  color: #6b7280;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .12s ease;
 }
-
-.cat-list { display: flex; flex-direction: column; gap: 2px; }
-
-.cat-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 8px; border-radius: 10px; transition: background 0.1s;
-  &:hover { background: #f8fafc; .cat-actions { opacity: 1; } }
-
-  .cat-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; mat-icon { font-size: 18px; width: 18px; height: 18px; } }
-  .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .cat-name { flex: 1; font-size: 0.9rem; font-weight: 500; color: #1e293b; }
-  .cat-actions { opacity: 0; transition: opacity 0.15s; display: flex; }
+.icon-pick:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+.icon-pick.selected {
+  background: #eef2ff;
+  border-color: #6366f1;
+  color: #6366f1;
 }
