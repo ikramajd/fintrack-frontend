@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Dashboard, SubScore } from '../../core/models/models';
 
 @Component({
@@ -21,17 +22,23 @@ export class DashboardComponent implements OnInit {
   displayScore = 0;
   arcOffset = 377;
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, public auth: AuthService) {}
 
   ngOnInit(): void {
     this.api.getDashboard().subscribe({
       next: (d) => {
         this.data = d;
         this.loading = false;
-        setTimeout(() => this.animate(), 150);
+        if (!this.isEmpty) setTimeout(() => this.animate(), 150);
       },
       error: () => { this.loading = false; }
     });
+  }
+
+  // Compte vide : aucune transaction (revenus et dépenses à 0)
+  get isEmpty(): boolean {
+    return !!this.data && this.data.totalIncome === 0 && this.data.totalExpense === 0
+        && this.data.recentTransactions.length === 0;
   }
 
   private animate(): void {

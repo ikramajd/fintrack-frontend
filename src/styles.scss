@@ -163,6 +163,35 @@ main.container { animation: fadeUp .35s ease both; }
 /* ---------- Liste ---------- */
 .list-group-item { border-color: var(--line); }
 
+/* ---------- Pages d'authentification ---------- */
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%);
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border: none;
+  border-radius: 18px;
+}
+.auth-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, .4);
+}
+
 /* ---------- Barre de défilement personnalisée ---------- */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb {
