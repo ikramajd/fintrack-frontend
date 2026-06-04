@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
-import { AuthService } from '../../core/services/auth.service';
 import { Dashboard, SubScore } from '../../core/models/models';
 
 @Component({
@@ -22,7 +21,7 @@ export class DashboardComponent implements OnInit {
   displayScore = 0;
   arcOffset = 377;
 
-  constructor(private api: ApiService, public auth: AuthService) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
     this.api.getDashboard().subscribe({
